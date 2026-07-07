@@ -38,10 +38,24 @@ namespace Authorization.Controllers
             return NotFound(ResponseResult<EmployeeDto>.Failure(null, "OOPS! Some thing went wrong..."));
         }
 
-        //[HttpPatch("UpdateEmployee")]
-        //public async Task<IActionResult> UpdateEmploye(EmployeeDto employeeDto)
-        //{
+        [HttpPut("UpdateEmployee")]
+        public async Task<IActionResult> UpdateEmploye(EmployeeDto employeeDto)
+        {
+            try
+            {
+                var result = await _employeeService.UpdateEmployee(employeeDto);
 
-        //}
+                if (result.Item1 == 0)
+                {
+                    return NotFound(ResponseResult<EmployeeDto>.Failure(null, result.Item3));
+                }
+
+                return Ok(ResponseResult<EmployeeDto>.Success(result.Item2, result.Item3));
+            }
+            catch(Exception ex)
+            {
+                throw;
+            }
+        }
     }
 }
