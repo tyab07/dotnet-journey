@@ -45,3 +45,8 @@ publish/
 # ReSharper
 _ReSharper*/
 *.DotSettings.user
+
+# Ignore project and config files per request
+*.json
+*.http
+*.csproj
