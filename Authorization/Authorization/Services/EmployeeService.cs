@@ -98,6 +98,25 @@ namespace Authorization.Services
 
         }
 
+        public async Task<Tuple<int,string>> DeleteEmployee(EmployeeDto employeeDto)
+        {
+            try
+            {
+                var existingUser = await _context.Employee.FirstOrDefaultAsync(x => x.Email == employeeDto.Email);
+                if (existingUser == null)
+                {
+                    return new Tuple<int, string>(0, "The User does not exist ");
+                }
+                _context.Employee.Remove(existingUser);
+                await _context.SaveChangesAsync();
+                return new Tuple<int, string>(1, "User Successfully Deleted");
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
 
 
 

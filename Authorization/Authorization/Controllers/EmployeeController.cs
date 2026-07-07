@@ -57,5 +57,18 @@ namespace Authorization.Controllers
                 throw;
             }
         }
+
+        [HttpDelete("DeleteEmployee")]
+        public async Task<IActionResult> DeleteEmployee(EmployeeDto employeeDto)
+        {
+            var result = await _employeeService.DeleteEmployee(employeeDto);
+
+            if(result.Item1 == 0)
+            {
+                return NotFound(ResponseResult<EmployeeDto>.Failure(null, result.Item2));
+            }
+
+            return Ok(ResponseResult<EmployeeDto>.Success(null, result.Item2));
+        }
     }
 }
