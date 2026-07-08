@@ -117,6 +117,36 @@ namespace Authorization.Services
             }
         }
 
+        public async Task<Tuple<int, EmployeeDto>> GetEmployeeById(Guid id)
+        {
+            try
+            {
+                var employee =  await _context.Employee.AsNoTracking().Select(x => new EmployeeDto
+                {
+                    Id = x.Id,
+                    CreatedDate = x.CreatedDate,
+                    LastModifiedDate = x.LastModifiedDate,
+                    Name = x.Name,
+                    Dob = x.Dob,
+                    Department = x.Department,
+                    Position = x.Position,
+                    Email = x.Email
+                }).FirstOrDefaultAsync(x=>x.Id == id);
+
+                if(employee == null)
+                {
+                    return new Tuple<int, EmployeeDto>(0, null);
+                }
+
+                return new Tuple<int, EmployeeDto>(1, employee);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
+
 
 
 

@@ -70,5 +70,18 @@ namespace Authorization.Controllers
 
             return Ok(ResponseResult<EmployeeDto>.Success(null, result.Item2));
         }
+
+        [HttpGet("GetEmployeeById/{id}")]
+
+        public async Task<IActionResult> GetEmployeeById(Guid id)
+        {
+            var result = await _employeeService.GetEmployeeById(id);
+            if (result.Item1 == 0)
+            {
+                return NotFound(ResponseResult<EmployeeDto>.Failure(null, "The User does not exist "));
+            }
+            return Ok(ResponseResult<EmployeeDto>.Success(result.Item2, "User Found!"));
+        }
     }
+
 }
