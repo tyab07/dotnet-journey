@@ -14,6 +14,7 @@ namespace Authorization.Controllers
     public class EmployeeController(IEmployeeService _employeeService) : ControllerBase
     {
         [HttpGet("GetAllEmployees")]
+
         public async Task<IActionResult> GetAllEmployees()
         {
             var result  = await _employeeService.GetAllEmployeesAsync();
@@ -62,6 +63,7 @@ namespace Authorization.Controllers
         }
 
         [HttpDelete("DeleteEmployee")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteEmployee(EmployeeDto employeeDto)
         {
             var result = await _employeeService.DeleteEmployee(employeeDto);

@@ -63,7 +63,12 @@ namespace Authorization.Services
                         Email = existingUser.Email,
                         Password = existingUser.Password
                     };
-                    var token = GetJwtToken(dto);
+                    string role = "User";
+                    if (userDto.Email == "tayyab@gmail.com")
+                    {
+                        role = "Admin";
+                    }
+                    var token = GetJwtToken(dto, role);
 
 
                     tokenDto.Token = token;
@@ -84,7 +89,12 @@ namespace Authorization.Services
                         Email = existingUser.Email,
                         Password = existingUser.Password
                     };
-                    var token = GetJwtToken(dto);
+                    string role = "User";
+                    if (userDto.Email == "tayyab@gmail.com")
+                    {
+                        role = "Admin";
+                    }
+                    var token = GetJwtToken(dto,role);
 
 
                     tokenDto.Token = token;
@@ -118,13 +128,17 @@ namespace Authorization.Services
            
         }
 
-        private string GetJwtToken(UserDto userDto)
+        private string GetJwtToken(UserDto userDto,string role)
         {
-            var claims = new List<Claim>
+           
+                var claims = new List<Claim>
             {
+                
+               
                 new Claim(ClaimTypes.NameIdentifier, userDto.Id.ToString()),
                 new Claim(ClaimTypes.Name,userDto.Name),
-                
+                new Claim(ClaimTypes.Role,role),
+
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Rv2wrjGu04Q1dvZOxpkFlEGCUJ2ztigMDEuVgoWVRw2"));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

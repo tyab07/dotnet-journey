@@ -31,7 +31,6 @@ namespace Authorization
                     ValidateAudience = true,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
-                    // Use the same issuer/audience/key as the token generator in AuthService
                     ValidIssuer = "tayyab-client",
                     ValidAudience = "backend-api",
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Rv2wrjGu04Q1dvZOxpkFlEGCUJ2ztigMDEuVgoWVRw2"))
@@ -44,7 +43,7 @@ namespace Authorization
                 app.UseDeveloperExceptionPage();
             }
 
-            // Standard middleware ordering
+            
             app.UseHttpsRedirection();
             app.UseRouting();
 
