@@ -1,15 +1,16 @@
 ﻿
+using Authorization.Constants;
 using Authorization.Data;
-using Authorization.IServices;
 using Authorization.DTOs;
-using Microsoft.EntityFrameworkCore;
+using Authorization.IServices;
 using Microsoft.AspNetCore.Identity;
-using System.Globalization;
-using System.Security.Claims;
-using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq.Expressions;
+using System.Security.Claims;
+using System.Text;
 namespace Authorization.Services
 {
     public class AuthService : IAuthService
@@ -22,7 +23,7 @@ namespace Authorization.Services
             _logger = logger;
         }
 
-        public async Task<Tuple<int, TokenDto>> loginUser(UserDto userDto)
+        public async Task<Tuple<int, TokenDto>> loginUser(UserLoginDto userDto)
         {
             try
             {
@@ -61,14 +62,11 @@ namespace Authorization.Services
                         Id = existingUser.Id,
                         Name = existingUser.Name,
                         Email = existingUser.Email,
-                        Password = existingUser.Password
+                        Password = existingUser.Password,
+                        Role = existingUser.Role
                     };
-                    string role = "User";
-                    if (userDto.Email == "tayyab@gmail.com")
-                    {
-                        role = "Admin";
-                    }
-                    var token = GetJwtToken(dto, role);
+                    
+                    var token = GetJwtToken(dto);
 
 
                     tokenDto.Token = token;
@@ -87,14 +85,11 @@ namespace Authorization.Services
                         Id = existingUser.Id,
                         Name = existingUser.Name,
                         Email = existingUser.Email,
-                        Password = existingUser.Password
+                        Password = existingUser.Password,
+                        Role = existingUser.Role
                     };
-                    string role = "User";
-                    if (userDto.Email == "tayyab@gmail.com")
-                    {
-                        role = "Admin";
-                    }
-                    var token = GetJwtToken(dto,role);
+                  
+                    var token = GetJwtToken(dto);
 
 
                     tokenDto.Token = token;
@@ -123,12 +118,12 @@ namespace Authorization.Services
             }
             catch (Exception ex)
             {
-                throw new Exception(ex.Message);
+                throw ;
             }
            
         }
 
-        private string GetJwtToken(UserDto userDto,string role)
+        private string GetJwtToken(UserDto userDto)
         {
            
                 var claims = new List<Claim>
@@ -137,7 +132,7 @@ namespace Authorization.Services
                
                 new Claim(ClaimTypes.NameIdentifier, userDto.Id.ToString()),
                 new Claim(ClaimTypes.Name,userDto.Name),
-                new Claim(ClaimTypes.Role,role),
+                new Claim(ClaimTypes.Role,userDto.Role),
 
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Rv2wrjGu04Q1dvZOxpkFlEGCUJ2ztigMDEuVgoWVRw2"));
@@ -164,12 +159,23 @@ namespace Authorization.Services
                     return new Tuple<int, string>(1, "The user is already existed");
                 }
 
+                if (!Roles.AllRoles.Contains(userDto.Role))
+                {
+                    return new Tuple<int,string>(4,"Invalid role.");
+                }
+                var user = new UserLoginDto
+                {
+                    Email = userDto.Email,
+                    Password = userDto.Password
+                };
+
                 _context.AccountUser.Add(new Entities.User
                 {
                     Id = Guid.NewGuid(),
                     Name = userDto.Name,
                     Email = userDto.Email,
-                    Password = Passwordhashing(userDto),
+                    Password = Passwordhashing(user),
+                    Role = userDto.Role
 
                 });
 
@@ -184,7 +190,7 @@ namespace Authorization.Services
         }
 
 
-        private string Passwordhashing(UserDto dto)
+        private string Passwordhashing(UserLoginDto dto)
         {
             var passwordHasher = new PasswordHasher<string>();
            return  passwordHasher.HashPassword(dto.Email, dto.Password);

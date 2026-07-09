@@ -1,6 +1,7 @@
 ﻿using Authorization.DTOs;
 using Authorization.GenericResponse;
 using Authorization.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
@@ -22,7 +23,7 @@ namespace Authorization.Controllers
         [HttpPost("login")]
 
        
-        public async Task<IActionResult> Login(UserDto user)
+        public async Task<IActionResult> Login(UserLoginDto user)
         {
             try
             {
@@ -46,6 +47,7 @@ namespace Authorization.Controllers
         }
 
         [HttpPost("register")]
+        [Authorize(Roles = "SuperAdmin")]
 
         public async Task<IActionResult> Registration(UserDto userDto)
         {
@@ -58,7 +60,11 @@ namespace Authorization.Controllers
                 {
                     return Ok(ResponseResult<string>.Failure(null, message: result.Item2));
                 }
-                return Ok(ResponseResult<string>.Success(null, message: result.Item2));
+                if(result.Item1 == 4)
+                {
+                    return BadRequest(ResponseResult<string>.Failure(null, message: result.Item2));
+                }
+                return Ok(ResponseResult<UserDto>.Success(userDto, message: result.Item2));
             }
             catch(Exception ex)
             {

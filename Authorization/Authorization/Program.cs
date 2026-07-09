@@ -1,8 +1,9 @@
-using Microsoft.EntityFrameworkCore;
 using Authorization.Data;
-using Authorization.Services;
 using Authorization.IServices;
+using Authorization.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 namespace Authorization
@@ -11,6 +12,10 @@ namespace Authorization
     {
         public static void Main(string[] args)
         {
+            //var hasher = new PasswordHasher<string>();
+
+            //var hash = hasher.HashPassword("admin@gmail.com", "Admin@123");
+            //Console.WriteLine(hash);
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddDbContext<AppDbContext>(options =>
