@@ -46,11 +46,11 @@ namespace Authorization.Services
                 _context.Employee.Add(new Entities.Employee
                 {
                     Name = employeeDto.Name,
-                    CreatedDate = employeeDto.CreatedDate,
+                    CreatedDate = DateTime.UtcNow,
                     Department = employeeDto.Department,
                     Dob = employeeDto.Dob,
                     Email = employeeDto.Email,
-                    LastModifiedDate = employeeDto.LastModifiedDate,
+                    LastModifiedDate = DateTime.UtcNow,
                     Position = employeeDto.Position
                 }
                 );
@@ -80,11 +80,11 @@ namespace Authorization.Services
                 }
 
                 existingUser.Name = employeeDto.Name ?? existingUser.Name;
-                existingUser.CreatedDate = employeeDto.CreatedDate;
+                existingUser.CreatedDate = existingUser.CreatedDate;
                 existingUser.Department = employeeDto.Department ?? existingUser.Department;
                 existingUser.Dob = employeeDto.Dob ?? existingUser.Dob;
                 existingUser.Email = employeeDto.Email ?? existingUser.Email;
-                existingUser.LastModifiedDate = employeeDto.LastModifiedDate ?? existingUser.LastModifiedDate;
+                existingUser.LastModifiedDate = DateTime.UtcNow;
                 existingUser.Position = employeeDto.Position ?? existingUser.Position;
                 
                 await _context.SaveChangesAsync();
