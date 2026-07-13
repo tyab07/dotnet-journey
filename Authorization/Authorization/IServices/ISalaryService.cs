@@ -1,6 +1,9 @@
-﻿namespace Authorization.IServices
+﻿using Authorization.DTOs;
+
+namespace Authorization.IServices
 {
-    public class ISalaryService
+    public interface ISalaryService
     {
+        Tuple<int, string, SalaryDto> AddSalary(SalaryDto salary);
     }
 }

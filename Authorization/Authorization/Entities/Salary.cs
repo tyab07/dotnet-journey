@@ -11,7 +11,7 @@ namespace Authorization.Entities
         public Guid EmployeeId { get; set; }
 
         [ForeignKey(nameof(EmployeeId))]
-        public Employee Employee { get; set; }
+        public Employee Employee { get; set; } = null!;
 
         public decimal BasicSalary { get; set; }
 
@@ -19,10 +19,12 @@ namespace Authorization.Entities
 
         public decimal Deduction { get; set; }
 
-        public decimal NetSalary { get; set; }
+        public int Month { get; set; }
+
+        public int Year { get; set; }
 
         public DateTime PaymentDate { get; set; }
 
-        public string Status { get; set; }
+        public string Status { get; set; } = null!;
     }
 }

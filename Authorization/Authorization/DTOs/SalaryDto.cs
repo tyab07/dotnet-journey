@@ -19,6 +19,13 @@ namespace Authorization.DTOs
         public decimal NetSalary { get; set; }
 
         [Required]
+        [Range(1, 12, ErrorMessage = "Month must be between 1 and 12.")]
+        public int Month { get; set; }
+
+        [Required]
+        public int Year { get; set; }
+
+        [Required]
         public DateTime PaymentDate { get; set; }
 
         [Required]
