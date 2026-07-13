@@ -1,4 +1,4 @@
-﻿using Authorization.DTOs;
+using Authorization.DTOs;
 using Authorization.IServices;
 using Microsoft.EntityFrameworkCore;
 using Authorization.Data;
@@ -40,7 +40,7 @@ namespace Authorization.Services
 
                 if (existingUser != null)
                 {
-                    return  new Tuple<int, EmployeeDto, string>(1, null, $"The User{existingUser.Name} is already existing ");
+                    return  new Tuple<int, EmployeeDto, string>(0, null, $"The User {existingUser.Name} is already existing ");
                 }
 
                 _context.Employee.Add(new Entities.Employee

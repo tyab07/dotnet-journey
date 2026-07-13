@@ -133,6 +133,7 @@ namespace Authorization.Services
                 new Claim(ClaimTypes.NameIdentifier, userDto.Id.ToString()),
                 new Claim(ClaimTypes.Name,userDto.Name),
                 new Claim(ClaimTypes.Role,userDto.Role),
+                new Claim(ClaimTypes.Email, userDto.Email),
 
             };
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Rv2wrjGu04Q1dvZOxpkFlEGCUJ2ztigMDEuVgoWVRw2"));

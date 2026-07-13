@@ -41,6 +41,20 @@ namespace Authorization
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Rv2wrjGu04Q1dvZOxpkFlEGCUJ2ztigMDEuVgoWVRw2"))
                 };
             });
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("ReactPolicy", policy =>
+                {
+                    policy
+                        .WithOrigins("http://localhost:5173")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials(); // only if using cookies
+                });
+            });
+            
+
             builder.Services.AddControllers();
             var app = builder.Build();
             if (app.Environment.IsDevelopment())
@@ -51,6 +65,7 @@ namespace Authorization
             
             app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseCors("ReactPolicy");
 
             app.UseAuthentication();
             app.UseAuthorization();

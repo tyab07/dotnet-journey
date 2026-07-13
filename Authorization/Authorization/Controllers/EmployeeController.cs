@@ -1,4 +1,4 @@
-﻿using Authorization.DTOs;
+using Authorization.DTOs;
 using Authorization.GenericResponse;
 using Authorization.IServices;
 using Microsoft.AspNetCore.Authorization;
@@ -31,11 +31,11 @@ namespace Authorization.Controllers
         public async Task<IActionResult> RegisterEmployee(EmployeeDto employeeDto)
         {
             var result = await _employeeService.RegisterEmployee(employeeDto);
-            if(result.Item1 == 1 )
+            if (result.Item1 == 0)
             {
-                return Ok(ResponseResult<EmployeeDto>.Success(result.Item2, result.Item3));
+                return Conflict(ResponseResult<EmployeeDto>.Failure(null, result.Item3));
             }
-            if(result.Item1 == 2)
+            if (result.Item1 == 1)
             {
                 return Ok(ResponseResult<EmployeeDto>.Success(result.Item2, result.Item3));
             }
@@ -63,7 +63,7 @@ namespace Authorization.Controllers
         }
 
         [HttpDelete("DeleteEmployee")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         public async Task<IActionResult> DeleteEmployee(EmployeeDto employeeDto)
         {
             var result = await _employeeService.DeleteEmployee(employeeDto);

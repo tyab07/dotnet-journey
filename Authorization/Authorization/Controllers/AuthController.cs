@@ -1,4 +1,4 @@
-﻿using Authorization.DTOs;
+using Authorization.DTOs;
 using Authorization.GenericResponse;
 using Authorization.IServices;
 using Microsoft.AspNetCore.Authorization;
@@ -59,6 +59,10 @@ namespace Authorization.Controllers
                 if (result.Item1 == 0)
                 {
                     return Ok(ResponseResult<string>.Failure(null, message: result.Item2));
+                }
+                if (result.Item1 == 1)
+                {
+                    return Conflict(ResponseResult<string>.Failure(null, message: result.Item2));
                 }
                 if(result.Item1 == 4)
                 {
