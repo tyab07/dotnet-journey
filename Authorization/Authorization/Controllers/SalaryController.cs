@@ -1,8 +1,8 @@
 ﻿using Authorization.DTOs;
+using Authorization.GenericResponse;
 using Authorization.IServices;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc;
-using RouteAttribute = Microsoft.AspNetCore.Components.RouteAttribute;
+
 
 
 namespace Authorization.Controllers
@@ -11,11 +11,17 @@ namespace Authorization.Controllers
     [ApiController]
     public class SalaryController (ISalaryService _salaryService): ControllerBase
     {
-        [HttpPost("post")]
+        [HttpPost("addsalary")]
         public async Task<IActionResult> AddSalary(SalaryDto _salaryDto) {
             var result = await _salaryService.AddSalary(_salaryDto);
 
-            return Ok();
+            if(result.Item1 == 0)
+            {
+                return Conflict(ResponseResult<string>.Failure(null,result.Item2));
+            }
+
+
+            return Ok(ResponseResult<string>.Success(null, result.Item2));
         
         }
     }

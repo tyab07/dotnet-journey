@@ -30,6 +30,7 @@ namespace Authorization.Services
 
 
                 });
+                await _context.SaveChangesAsync();
                 return new Tuple<int, string>(1, "Salary Added Successfully!");
             }
             catch (Exception ex) {

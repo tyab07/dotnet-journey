@@ -12,10 +12,7 @@ namespace Authorization
     {
         public static void Main(string[] args)
         {
-            //var hasher = new PasswordHasher<string>();
 
-            //var hash = hasher.HashPassword("admin@gmail.com", "Admin@123");
-            //Console.WriteLine(hash);
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Services.AddDbContext<AppDbContext>(options =>
@@ -23,6 +20,7 @@ namespace Authorization
 
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+            builder.Services.AddScoped<ISalaryService, SalaryService>();
 
             builder.Services.AddAuthentication(options =>
             {
