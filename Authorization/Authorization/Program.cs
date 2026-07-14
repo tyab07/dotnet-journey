@@ -21,6 +21,7 @@ namespace Authorization
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IEmployeeService, EmployeeService>();
             builder.Services.AddScoped<ISalaryService, SalaryService>();
+            builder.Services.AddScoped<IBranchService, BranchService>();
 
             builder.Services.AddAuthentication(options =>
             {
