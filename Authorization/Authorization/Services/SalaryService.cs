@@ -30,7 +30,7 @@ namespace Authorization.Services
         {
             try
             {
-                var ExistingSalary = await _context.Salary.FirstOrDefaultAsync(s => s.PaymentDate.Month == salary.PaymentDate.Month &&
+                var ExistingSalary = await _context.Salary.FirstOrDefaultAsync(s => s.EmployeeId == salary.EmployeeId && s.PaymentDate.Month == salary.PaymentDate.Month &&
                 s.PaymentDate.Year == salary.PaymentDate.Year);
                 if (ExistingSalary != null)
                 {
