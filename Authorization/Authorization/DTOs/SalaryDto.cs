@@ -4,7 +4,7 @@ namespace Authorization.DTOs
 {
     public class SalaryDto
     {
-        public Guid Id { get; set; } = Guid.NewGuid();
+        public Guid Id { get; set; }
 
         [Required]
         public Guid EmployeeId { get; set; }
@@ -15,8 +15,6 @@ namespace Authorization.DTOs
         public decimal Bonus { get; set; }
 
         public decimal Deduction { get; set; }
-
-        public decimal NetSalary { get; set; }
 
         [Required]
         [Range(1, 12, ErrorMessage = "Month must be between 1 and 12.")]
