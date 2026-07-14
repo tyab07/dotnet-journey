@@ -4,6 +4,6 @@ namespace Authorization.IServices
 {
     public interface ISalaryService
     {
-        Task<Tuple<int,string,SalaryDto>> AddSalary(SalaryDto salary);
+        Task<Tuple<int,string>> AddSalary(SalaryDto salary);
     }
 }
