@@ -7,6 +7,25 @@ namespace Authorization.Services
 {
     public class SalaryService(AppDbContext _context): ISalaryService
     {
+
+
+        public async Task<Tuple<List<SalaryDto>,string>> GetAllSalaries()
+        {
+            var salaries = await _context.Salary.AsNoTracking().Select(x => new SalaryDto
+            {
+                Id = x.Id,
+                EmployeeId = x.EmployeeId,
+                BasicSalary = x.BasicSalary,
+                Bonus = x.Bonus,
+                Deduction = x.Deduction,
+                PaymentDate = x.PaymentDate,
+                Status = x.Status
+
+
+            }).ToListAsync();
+
+            return new Tuple<List<SalaryDto>, string> (salaries, "Data retrieved successfully!");
+        }
         public async Task<Tuple<int,string>> AddSalary(SalaryDto salary)
         {
             try

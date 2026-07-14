@@ -33,5 +33,12 @@ namespace Authorization.Controllers
             return Ok(ResponseResult<string>.Success(null, result.Item2));
             
         }
+
+        [HttpGet("salaries")]
+        public async Task<IActionResult> getSalaries()
+        {
+            var result = await _salaryService.GetAllSalaries();
+            return Ok(ResponseResult<List<SalaryDto>>.Success(result.Item1, result.Item2));
+        }
     }
 }
