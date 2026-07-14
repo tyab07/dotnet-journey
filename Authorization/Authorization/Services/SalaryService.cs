@@ -11,7 +11,8 @@ namespace Authorization.Services
         {
             try
             {
-                var ExistingSalary = await _context.Salary.FirstOrDefaultAsync(s => s.Month == salary.Month && s.Year == salary.Year);
+                var ExistingSalary = await _context.Salary.FirstOrDefaultAsync(s => s.PaymentDate.Month == salary.PaymentDate.Month &&
+                s.PaymentDate.Year == salary.PaymentDate.Year);
                 if (ExistingSalary != null)
                 {
                     return new Tuple<int, string>(0, "The Salary for the current month is already stored You cant make new " +
@@ -23,8 +24,6 @@ namespace Authorization.Services
                     BasicSalary = salary.BasicSalary,
                     Bonus = salary.Bonus,
                     Deduction = salary.Deduction,
-                    Month = salary.Month,
-                    Year = salary.Year,
                     PaymentDate = salary.PaymentDate,
                     Status = salary.Status,
 
@@ -39,6 +38,34 @@ namespace Authorization.Services
            
         }
 
-        
+        public async Task<Tuple<int, string>> UpdateSalary(SalaryDto salaryDto)
+        {
+
+            try
+            {
+                var ExistingSalary = await _context.Salary.FirstOrDefaultAsync(s => s.Id == salaryDto.Id && s.EmployeeId == salaryDto.EmployeeId);
+
+                ExistingSalary.Deduction = salaryDto.Deduction;
+                ExistingSalary.Status = salaryDto.Status ?? ExistingSalary.Status;
+                ExistingSalary.BasicSalary = salaryDto.BasicSalary;
+                ExistingSalary.Bonus = salaryDto.Bonus;
+                ExistingSalary.PaymentDate = salaryDto.PaymentDate;
+
+                await _context.SaveChangesAsync();
+
+                return new Tuple<int, string>(1, "Salary Updated SuccessFully!");
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+           
+
+
+
+        }
+
+
+
     }
 }

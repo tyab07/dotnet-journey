@@ -12,8 +12,8 @@ namespace Authorization.Controllers
     public class SalaryController (ISalaryService _salaryService): ControllerBase
     {
         [HttpPost("addsalary")]
-        public async Task<IActionResult> AddSalary(SalaryDto _salaryDto) {
-            var result = await _salaryService.AddSalary(_salaryDto);
+        public async Task<IActionResult> AddSalary(SalaryDto salaryDto) {
+            var result = await _salaryService.AddSalary(salaryDto);
 
             if(result.Item1 == 0)
             {
@@ -23,6 +23,15 @@ namespace Authorization.Controllers
 
             return Ok(ResponseResult<string>.Success(null, result.Item2));
         
+        }
+
+        [HttpPut("updatesalary")]
+        public async Task<IActionResult> UpdateSalary(SalaryDto salaryDto)
+        {
+            var result = await _salaryService.UpdateSalary(salaryDto);
+
+            return Ok(ResponseResult<string>.Success(null, result.Item2));
+            
         }
     }
 }

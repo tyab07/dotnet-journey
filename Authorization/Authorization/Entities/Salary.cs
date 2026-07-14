@@ -19,10 +19,6 @@ namespace Authorization.Entities
 
         public decimal Deduction { get; set; }
 
-        public int Month { get; set; }
-
-        public int Year { get; set; }
-
         public DateTime PaymentDate { get; set; }
 
         public string Status { get; set; } = null!;
