@@ -1,4 +1,4 @@
-﻿using Authorization.DTOs;
+using Authorization.DTOs;
 using Authorization.IServices;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,12 +6,12 @@ namespace Authorization.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DepartmentController(IDepartmentService _departmentService) : ControllerBase
+    public class DesignationController(IDesignationService _designationService) : ControllerBase
     {
-        [HttpGet("getAllDepartment")]
-        public async Task<IActionResult> GetAllDepartments()
+        [HttpGet("getalldesignations")]
+        public async Task<IActionResult> GetAllDesignations()
         {
-            var result = await _departmentService.GetAllDepartments();
+            var result = await _designationService.GetAllDesignations();
 
             return Ok(new
             {
@@ -21,22 +21,20 @@ namespace Authorization.Controllers
             });
         }
 
-        [HttpPost("addDepartment")]
-        public async Task<IActionResult> AddDepartment([FromBody] DepartmentDto departmentDto)
+        [HttpPost("adddesignation")]
+        public async Task<IActionResult> AddDesignation([FromBody] DesignationDto designationDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _departmentService.AddDepartment(departmentDto);
+            var result = await _designationService.AddDesignation(designationDto);
 
             if (result.Item1 == 0)
-            {
                 return BadRequest(new
                 {
                     Success = false,
                     Message = result.Item2
                 });
-            }
 
             return Ok(new
             {
@@ -45,21 +43,20 @@ namespace Authorization.Controllers
             });
         }
 
-        [HttpPut("updateDepartment")]
-        public async Task<IActionResult> UpdateDepartment([FromBody] DepartmentDto departmentDto)
+        [HttpPut("updatedesignation")]
+        public async Task<IActionResult> UpdateDesignation([FromBody] DesignationDto designationDto)
         {
-           
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            var result = await _departmentService.UpdateDepartment(departmentDto);
+            var result = await _designationService.UpdateDesignation(designationDto);
 
             if (result.Item1 == 0)
-            {
                 return NotFound(new
                 {
                     Success = false,
                     Message = result.Item2
                 });
-            }
 
             return Ok(new
             {
@@ -68,19 +65,17 @@ namespace Authorization.Controllers
             });
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteDepartment(Guid id)
+        [HttpDelete("deletedesignation/{id}")]
+        public async Task<IActionResult> DeleteDesignation(Guid id)
         {
-            var result = await _departmentService.DeleteDepartment(id);
+            var result = await _designationService.DeleteDesignation(id);
 
             if (result.Item1 == 0)
-            {
                 return NotFound(new
                 {
                     Success = false,
                     Message = result.Item2
                 });
-            }
 
             return Ok(new
             {
