@@ -120,5 +120,32 @@ namespace Authorization.Services
                 throw;
             }
         }
+
+        public async Task<Tuple<DesignationDto, string>> GetDesignationById(Guid id)
+        {
+            try
+            {
+                var designation = await _context.Designation
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(d => d.Id == id);
+
+                if (designation == null)
+                {
+                    return new Tuple<DesignationDto, string>(null, "Designation not found!");
+                }
+
+                var dto = new DesignationDto
+                {
+                    Id = designation.Id,
+                    Name = designation.Name
+                };
+
+                return new Tuple<DesignationDto, string>(dto, "Designation retrieved successfully!");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

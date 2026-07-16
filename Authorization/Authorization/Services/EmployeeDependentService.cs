@@ -152,5 +152,36 @@ namespace Authorization.Services
                 throw;
             }
         }
+
+        public async Task<Tuple<EmployeeDependentDto, string>> GetDependentById(Guid id)
+        {
+            try
+            {
+                var dep = await _context.EmployeeDependent
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(d => d.Id == id);
+
+                if (dep == null)
+                {
+                    return new Tuple<EmployeeDependentDto, string>(null, "Dependent not found!");
+                }
+
+                var dto = new EmployeeDependentDto
+                {
+                    Id = dep.Id,
+                    EmployeeId = dep.EmployeeId,
+                    Name = dep.Name,
+                    Relationship = dep.Relationship,
+                    PhoneNumber = dep.PhoneNumber,
+                    DateOfBirth = dep.DateOfBirth
+                };
+
+                return new Tuple<EmployeeDependentDto, string>(dto, "Dependent retrieved successfully!");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

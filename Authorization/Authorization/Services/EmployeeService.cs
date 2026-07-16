@@ -19,9 +19,15 @@ namespace Authorization.Services
                     LastModifiedDate = x.LastModifiedDate,
                     Name = x.Name,
                     Dob = x.Dob,
-                    Department = x.Department,
-                    Position = x.Position,
-                    Email = x.Email
+                    Email = x.Email,
+                    DepartmentId = x.DepartmentId,
+                    DesignationId = x.DesignationId,
+                    BranchId = x.BranchId,
+                    EmployeeTypeId = x.EmployeeTypeId,
+                    DepartmentName = x.Department != null ? x.Department.Name : null,
+                    DesignationName = x.Designation != null ? x.Designation.Name : null,
+                    BranchName = x.Branch != null ? x.Branch.Name : null,
+                    EmployeeTypeName = x.EmployeeType != null ? x.EmployeeType.Name : null
                 }).ToListAsync());
             }
             catch (Exception ex)
@@ -29,6 +35,34 @@ namespace Authorization.Services
                 throw;
             }
 
+        }
+        
+        public async Task<Tuple<int, List<EmployeeDto>>> GetEmployeeByEmailAsync(string email)
+        {
+            try
+            {
+                return new Tuple<int, List<EmployeeDto>>(1, await _context.Employee.AsNoTracking().Where(x => x.Email == email).Select(x => new EmployeeDto
+                {
+                    Id = x.Id,
+                    CreatedDate = x.CreatedDate,
+                    LastModifiedDate = x.LastModifiedDate,
+                    Name = x.Name,
+                    Dob = x.Dob,
+                    Email = x.Email,
+                    DepartmentId = x.DepartmentId,
+                    DesignationId = x.DesignationId,
+                    BranchId = x.BranchId,
+                    EmployeeTypeId = x.EmployeeTypeId,
+                    DepartmentName = x.Department != null ? x.Department.Name : null,
+                    DesignationName = x.Designation != null ? x.Designation.Name : null,
+                    BranchName = x.Branch != null ? x.Branch.Name : null,
+                    EmployeeTypeName = x.EmployeeType != null ? x.EmployeeType.Name : null
+                }).ToListAsync());
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
 
 
@@ -47,11 +81,13 @@ namespace Authorization.Services
                 {
                     Name = employeeDto.Name,
                     CreatedDate = DateTime.UtcNow,
-                    Department = employeeDto.Department,
                     Dob = employeeDto.Dob,
                     Email = employeeDto.Email,
                     LastModifiedDate = DateTime.UtcNow,
-                    Position = employeeDto.Position
+                    DepartmentId = employeeDto.DepartmentId,
+                    DesignationId = employeeDto.DesignationId,
+                    BranchId = employeeDto.BranchId,
+                    EmployeeTypeId = employeeDto.EmployeeTypeId
                 }
                 );
 
@@ -81,11 +117,13 @@ namespace Authorization.Services
 
                 existingUser.Name = employeeDto.Name ?? existingUser.Name;
                 existingUser.CreatedDate = existingUser.CreatedDate;
-                existingUser.Department = employeeDto.Department ?? existingUser.Department;
                 existingUser.Dob = employeeDto.Dob ?? existingUser.Dob;
                 existingUser.Email = employeeDto.Email ?? existingUser.Email;
                 existingUser.LastModifiedDate = DateTime.UtcNow;
-                existingUser.Position = employeeDto.Position ?? existingUser.Position;
+                existingUser.DepartmentId = employeeDto.DepartmentId ?? existingUser.DepartmentId;
+                existingUser.DesignationId = employeeDto.DesignationId ?? existingUser.DesignationId;
+                existingUser.BranchId = employeeDto.BranchId ?? existingUser.BranchId;
+                existingUser.EmployeeTypeId = employeeDto.EmployeeTypeId ?? existingUser.EmployeeTypeId;
                 
                 await _context.SaveChangesAsync();
                 return new Tuple<int, EmployeeDto, string>(1, employeeDto, "User Successfully Updated");
@@ -128,9 +166,15 @@ namespace Authorization.Services
                     LastModifiedDate = x.LastModifiedDate,
                     Name = x.Name,
                     Dob = x.Dob,
-                    Department = x.Department,
-                    Position = x.Position,
-                    Email = x.Email
+                    Email = x.Email,
+                    DepartmentId = x.DepartmentId,
+                    DesignationId = x.DesignationId,
+                    BranchId = x.BranchId,
+                    EmployeeTypeId = x.EmployeeTypeId,
+                    DepartmentName = x.Department != null ? x.Department.Name : null,
+                    DesignationName = x.Designation != null ? x.Designation.Name : null,
+                    BranchName = x.Branch != null ? x.Branch.Name : null,
+                    EmployeeTypeName = x.EmployeeType != null ? x.EmployeeType.Name : null
                 }).FirstOrDefaultAsync(x=>x.Id == id);
 
                 if(employee == null)

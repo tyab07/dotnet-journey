@@ -1,5 +1,6 @@
 using Authorization.DTOs;
 using Authorization.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Authorization.Controllers
@@ -9,6 +10,7 @@ namespace Authorization.Controllers
     public class DesignationController(IDesignationService _designationService) : ControllerBase
     {
         [HttpGet("getalldesignations")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> GetAllDesignations()
         {
             var result = await _designationService.GetAllDesignations();
@@ -22,6 +24,7 @@ namespace Authorization.Controllers
         }
 
         [HttpPost("adddesignation")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> AddDesignation([FromBody] DesignationDto designationDto)
         {
             if (!ModelState.IsValid)
@@ -44,6 +47,7 @@ namespace Authorization.Controllers
         }
 
         [HttpPut("updatedesignation")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> UpdateDesignation([FromBody] DesignationDto designationDto)
         {
             if (!ModelState.IsValid)
@@ -66,6 +70,7 @@ namespace Authorization.Controllers
         }
 
         [HttpDelete("deletedesignation/{id}")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> DeleteDesignation(Guid id)
         {
             var result = await _designationService.DeleteDesignation(id);
@@ -81,6 +86,26 @@ namespace Authorization.Controllers
             {
                 Success = true,
                 Message = result.Item2
+            });
+        }
+
+        [HttpGet("getdesignationbyid/{id}")]
+        public async Task<IActionResult> GetDesignationById(Guid id)
+        {
+            var result = await _designationService.GetDesignationById(id);
+
+            if (result.Item1 == null)
+                return NotFound(new
+                {
+                    Success = false,
+                    Message = result.Item2
+                });
+
+            return Ok(new
+            {
+                Success = true,
+                Message = result.Item2,
+                Data = result.Item1
             });
         }
     }

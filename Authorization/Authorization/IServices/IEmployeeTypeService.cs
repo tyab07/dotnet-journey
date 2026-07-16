@@ -8,5 +8,6 @@ namespace Authorization.IServices
         Task<Tuple<int, string>> AddEmployeeType(EmployeeTypeDto employeeTypeDto);
         Task<Tuple<int, string>> UpdateEmployeeType(EmployeeTypeDto employeeTypeDto);
         Task<Tuple<int, string>> DeleteEmployeeType(Guid id);
+        Task<Tuple<EmployeeTypeDto, string>> GetEmployeeTypeById(Guid id);
     }
 }

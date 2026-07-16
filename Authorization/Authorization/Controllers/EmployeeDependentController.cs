@@ -1,5 +1,6 @@
 using Authorization.DTOs;
 using Authorization.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Authorization.Controllers
@@ -9,6 +10,7 @@ namespace Authorization.Controllers
     public class EmployeeDependentController(IEmployeeDependentService _dependentService) : ControllerBase
     {
         [HttpGet("getalldependents")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> GetAllDependents()
         {
             var result = await _dependentService.GetAllDependents();
@@ -42,6 +44,7 @@ namespace Authorization.Controllers
         }
 
         [HttpPost("adddependent")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> AddDependent([FromBody] EmployeeDependentDto dependentDto)
         {
             if (!ModelState.IsValid)
@@ -64,6 +67,7 @@ namespace Authorization.Controllers
         }
 
         [HttpPut("updatedependent")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> UpdateDependent([FromBody] EmployeeDependentDto dependentDto)
         {
             if (!ModelState.IsValid)
@@ -86,6 +90,7 @@ namespace Authorization.Controllers
         }
 
         [HttpDelete("deletedependent/{id}")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> DeleteDependent(Guid id)
         {
             var result = await _dependentService.DeleteDependent(id);
@@ -101,6 +106,26 @@ namespace Authorization.Controllers
             {
                 Success = true,
                 Message = result.Item2
+            });
+        }
+
+        [HttpGet("getdependentbyid/{id}")]
+        public async Task<IActionResult> GetDependentById(Guid id)
+        {
+            var result = await _dependentService.GetDependentById(id);
+
+            if (result.Item1 == null)
+                return NotFound(new
+                {
+                    Success = false,
+                    Message = result.Item2
+                });
+
+            return Ok(new
+            {
+                Success = true,
+                Message = result.Item2,
+                Data = result.Item1
             });
         }
     }

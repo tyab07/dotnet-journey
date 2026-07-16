@@ -1,5 +1,6 @@
 using Authorization.DTOs;
 using Authorization.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Authorization.Controllers
@@ -9,6 +10,7 @@ namespace Authorization.Controllers
     public class EmployeeTypeController(IEmployeeTypeService _employeeTypeService) : ControllerBase
     {
         [HttpGet("getallemployeetypes")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> GetAllEmployeeTypes()
         {
             var result = await _employeeTypeService.GetAllEmployeeTypes();
@@ -22,6 +24,7 @@ namespace Authorization.Controllers
         }
 
         [HttpPost("addemployeetype")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> AddEmployeeType([FromBody] EmployeeTypeDto employeeTypeDto)
         {
             if (!ModelState.IsValid)
@@ -44,6 +47,7 @@ namespace Authorization.Controllers
         }
 
         [HttpPut("updateemployeetype")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> UpdateEmployeeType([FromBody] EmployeeTypeDto employeeTypeDto)
         {
             if (!ModelState.IsValid)
@@ -66,6 +70,7 @@ namespace Authorization.Controllers
         }
 
         [HttpDelete("deleteemployeetype/{id}")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> DeleteEmployeeType(Guid id)
         {
             var result = await _employeeTypeService.DeleteEmployeeType(id);
@@ -81,6 +86,26 @@ namespace Authorization.Controllers
             {
                 Success = true,
                 Message = result.Item2
+            });
+        }
+
+        [HttpGet("getemployeetypebyid/{id}")]
+        public async Task<IActionResult> GetEmployeeTypeById(Guid id)
+        {
+            var result = await _employeeTypeService.GetEmployeeTypeById(id);
+
+            if (result.Item1 == null)
+                return NotFound(new
+                {
+                    Success = false,
+                    Message = result.Item2
+                });
+
+            return Ok(new
+            {
+                Success = true,
+                Message = result.Item2,
+                Data = result.Item1
             });
         }
     }

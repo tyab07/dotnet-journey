@@ -1,221 +1,232 @@
-import React, { useState } from "react";
-import { registerUser } from "../api/authApi";
+// ─── Users page ───────────────────────────────────────────────────────────────
+//
+// This is a SuperAdmin-only page to manage application users.
+// Lets SuperAdmin:
+//   - View all users (SuperAdmins, Admins, Users, Employees)
+//   - Create a new user (which handles backend registration)
+//   - Edit user name, email, password, and system role
+//   - Delete a user
+//
+// ─────────────────────────────────────────────────────────────────────────────
+import { useState, useEffect } from "react";
+import Modal from "../components/Modal";
+import {
+  getAllUsers,
+  createUser,
+  updateUser,
+  deleteUser,
+} from "../api/userService";
 
-const initialForm = {
+const EMPTY_FORM = {
+  id: "",
   name: "",
   email: "",
   password: "",
-  role: "User",
+  role: "",
 };
 
-const Users = () => {
-  const [formData, setFormData] = useState(initialForm);
-  const [message, setMessage] = useState("");
+const ROLES = ["SuperAdmin", "Admin", "User", "Employee"];
+
+function Users() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [statusType, setStatusType] = useState("idle");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
 
-  const extractResponseMessage = (response) => {
-    const data = response?.data;
+  const [modalOpen, setModalOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState("");
 
-    if (typeof data === "string") {
-      return data;
-    }
+  useEffect(() => {
+    loadUsers();
+  }, []);
 
-    if (typeof data?.message === "string") {
-      return data.message;
-    }
-
-    if (typeof data?.data?.message === "string") {
-      return data.data.message;
-    }
-
-    if (typeof data?.data === "string") {
-      return data.data;
-    }
-
-    return null;
-  };
-
-  const getErrorMessage = (err) => {
-    const data = err.response?.data;
-
-    if (typeof data === "string") {
-      return data;
-    }
-
-    if (typeof data?.message === "string") {
-      return data.message;
-    }
-
-    if (typeof data?.title === "string") {
-      return data.title;
-    }
-
-    if (data?.errors) {
-      const firstError = Object.values(data.errors)
-        .flat()
-        .find(Boolean);
-
-      if (firstError) {
-        return firstError;
-      }
-    }
-
-    if (err.message) {
-      return err.message;
-    }
-
-    return "Unable to create user.";
-  };
-
-  const handleChange = (event) => {
-    const { name, value } = event.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setMessage("");
+  const loadUsers = async () => {
+    setLoading(true);
     setError("");
-    setStatusType("idle");
-    setIsSubmitting(true);
-
     try {
-      const payload = {
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        password: formData.password,
-        role: formData.role,
-      };
-
-      console.log("[Users Page] Submitting register payload:", payload);
-
-      const response = await registerUser(payload);
-      console.log("[Users Page] Register response:", response);
-
-      const resultMessage = extractResponseMessage(response) || "User created successfully.";
-
-      setStatusType("success");
-      setMessage(resultMessage);
-      setFormData(initialForm);
+      const res = await getAllUsers();
+      // Res contains: { isSuccess: true, data: [...], message: "..." }
+      setUsers(res.data ?? []);
     } catch (err) {
-      console.error("[Users Page] Register failed:", err);
-      setStatusType("error");
-      setError(getErrorMessage(err));
+      setError(err.response?.data?.message || "Failed to load users.");
     } finally {
-      setIsSubmitting(false);
+      setLoading(false);
     }
   };
+
+  const openAdd = () => {
+    setForm(EMPTY_FORM);
+    setFormError("");
+    setIsEditing(false);
+    setModalOpen(true);
+  };
+
+  const openEdit = (user) => {
+    setForm({
+      id: user.id,
+      name: user.name ?? "",
+      email: user.email,
+      password: "", // Leave blank for security, only update if filled in update function
+      role: user.role,
+    });
+    setFormError("");
+    setIsEditing(true);
+    setModalOpen(true);
+  };
+
+  const handleChange = (e) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSave = async () => {
+    if (!form.name.trim()) { setFormError("Name is required."); return; }
+    if (!form.email.trim()) { setFormError("Email is required."); return; }
+    if (!isEditing && !form.password.trim()) { setFormError("Password is required for registration."); return; }
+    if (!form.role) { setFormError("Role selection is required."); return; }
+
+    setSaving(true);
+    setFormError("");
+    try {
+      if (isEditing) {
+        // For update, if password is empty we might need to handle it or backend handles it.
+        // Let's pass the form. If form.password is empty, backend might require it or keep existing depending on implementation.
+        await updateUser(form);
+      } else {
+        await createUser(form);
+      }
+      setModalOpen(false);
+      loadUsers();
+    } catch (err) {
+      setFormError(err.response?.data?.message || "Save failed.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDelete = async (user) => {
+    if (!window.confirm(`Delete user account "${user.email}"?`)) return;
+    try {
+      await deleteUser(user.id);
+      loadUsers();
+    } catch (err) {
+      alert(err.response?.data?.message || "Delete failed.");
+    }
+  };
+
+  if (loading) return <p className="text-gray-500">Loading users…</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div className="space-y-5">
-      <div className="inline-flex rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
-        SuperAdmin Access
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-lg font-semibold text-gray-800">
+          {users.length} User Account{users.length !== 1 ? "s" : ""}
+        </h2>
+        <button
+          onClick={openAdd}
+          className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded-md"
+        >
+          + Add User Account
+        </button>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-2xl font-bold text-slate-900">Users Management</h2>
-        <p className="mt-2 text-slate-600">Only SuperAdmin can access this page.</p>
+      <div className="bg-white rounded-lg shadow overflow-x-auto">
+        <table className="w-full text-sm text-left">
+          <thead className="bg-gray-50 border-b border-gray-200">
+            <tr>
+              {["Name", "Email", "Role", "Actions"].map((h) => (
+                <th key={h} className="px-4 py-3 text-gray-600 font-medium">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {users.length === 0 ? (
+              <tr>
+                <td colSpan={4} className="px-4 py-8 text-center text-gray-400">
+                  No users found.
+                </td>
+              </tr>
+            ) : (
+              users.map((u) => (
+                <tr key={u.id} className="border-b border-gray-100 hover:bg-gray-50">
+                  <td className="px-4 py-3 font-medium text-gray-800">{u.name ?? "—"}</td>
+                  <td className="px-4 py-3 text-gray-600">{u.email}</td>
+                  <td className="px-4 py-3">
+                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                      u.role === "SuperAdmin" ? "bg-purple-100 text-purple-800" :
+                      u.role === "Admin" ? "bg-blue-100 text-blue-800" :
+                      u.role === "Employee" ? "bg-green-100 text-green-800" :
+                      "bg-gray-100 text-gray-800"
+                    }`}>
+                      {u.role}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <button onClick={() => openEdit(u)} className="text-blue-600 hover:underline mr-3 text-xs">Edit</button>
+                    <button onClick={() => handleDelete(u)} className="text-red-500 hover:underline text-xs">Delete</button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
 
-        <form onSubmit={handleSubmit} className="mt-5 grid gap-4 md:grid-cols-2">
-          <label className="flex flex-col gap-2 text-sm text-slate-700">
-            Name
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 outline-none transition focus:border-emerald-500"
-              required
-            />
-          </label>
-
-          <label className="flex flex-col gap-2 text-sm text-slate-700">
-            Email
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 outline-none transition focus:border-emerald-500"
-              required
-            />
-          </label>
-
-          <label className="flex flex-col gap-2 text-sm text-slate-700">
-            Password
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="w-full rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 pr-20 text-slate-900 outline-none transition focus:border-emerald-500"
-                required
-              />
-
-              <button
-                type="button"
-                onClick={() => setShowPassword((prev) => !prev)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg px-2 py-1 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-50"
-              >
-                {showPassword ? "Hide" : "Show"}
-              </button>
-            </div>
-          </label>
-
-          <label className="flex flex-col gap-2 text-sm text-slate-700">
-            Role
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-slate-900 outline-none transition focus:border-emerald-500"
-            >
-              <option value="User">User</option>
-              <option value="Admin">Admin</option>
-              <option value="SuperAdmin">SuperAdmin</option>
+      <Modal
+        isOpen={modalOpen}
+        title={isEditing ? "Edit User" : "Register User"}
+        onClose={() => setModalOpen(false)}
+      >
+        <div className="space-y-3">
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Name *</label>
+            <input name="name" value={form.name} onChange={handleChange}
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Display name" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Email *</label>
+            <input name="email" type="email" value={form.email} onChange={handleChange}
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="user@example.com" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">
+              Password {isEditing && "(Leave blank to keep current)"} *
+            </label>
+            <input name="password" type="password" value={form.password} onChange={handleChange}
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="••••••••" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-700 mb-1">Role *</label>
+            <select name="role" value={form.role} onChange={handleChange}
+              className="w-full border border-gray-300 rounded px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="">— Select Role —</option>
+              {ROLES.map((r) => (
+                <option key={r} value={r}>{r}</option>
+              ))}
             </select>
-          </label>
+          </div>
 
-          <div className="md:col-span-2 flex items-center gap-3">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="rounded-xl bg-emerald-600 px-4 py-2 font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-slate-400"
-            >
-              {isSubmitting ? "Creating..." : "Create User"}
+          {formError && <p className="text-red-500 text-xs">{formError}</p>}
+
+          <div className="flex justify-end gap-2 pt-2">
+            <button onClick={() => setModalOpen(false)}
+              className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md">
+              Cancel
+            </button>
+            <button onClick={handleSave} disabled={saving}
+              className="px-4 py-2 text-sm bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white rounded-md">
+              {saving ? "Saving…" : "Save"}
             </button>
           </div>
-        </form>
-
-        {statusType === "success" && message && (
-          <div
-            role="status"
-            aria-live="polite"
-            className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800"
-          >
-            {message}
-          </div>
-        )}
-
-        {statusType === "error" && error && (
-          <div
-            role="alert"
-            aria-live="assertive"
-            className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-800"
-          >
-            {error}
-          </div>
-        )}
-      </div>
+        </div>
+      </Modal>
     </div>
   );
-};
+}
 
 export default Users;

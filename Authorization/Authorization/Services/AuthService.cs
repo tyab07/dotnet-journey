@@ -1,4 +1,4 @@
-﻿
+
 using Authorization.Constants;
 using Authorization.Data;
 using Authorization.DTOs;
@@ -196,6 +196,109 @@ namespace Authorization.Services
             var passwordHasher = new PasswordHasher<string>();
            return  passwordHasher.HashPassword(dto.Email, dto.Password);
 
+        }
+
+        public async Task<Tuple<List<UserDto>, string>> GetAllUsers()
+        {
+            var users = await _context.AccountUser
+                .AsNoTracking()
+                .Select(u => new UserDto
+                {
+                    Id = u.Id,
+                    Name = u.Name,
+                    Email = u.Email,
+                    Password = u.Password,
+                    Role = u.Role
+                })
+                .ToListAsync();
+
+            return new Tuple<List<UserDto>, string>(users, "Users retrieved successfully!");
+        }
+
+        public async Task<Tuple<UserDto, string>> GetUserById(Guid id)
+        {
+            var user = await _context.AccountUser
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user == null)
+            {
+                return new Tuple<UserDto, string>(null, "User not found!");
+            }
+
+            var dto = new UserDto
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                Password = user.Password,
+                Role = user.Role
+            };
+
+            return new Tuple<UserDto, string>(dto, "User retrieved successfully!");
+        }
+
+        public async Task<Tuple<int, string>> UpdateUser(UserDto userDto)
+        {
+            try
+            {
+                var existingUser = await _context.AccountUser.FirstOrDefaultAsync(u => u.Id == userDto.Id);
+                if (existingUser == null)
+                {
+                    return new Tuple<int, string>(0, "User not found!");
+                }
+
+                if (!Roles.AllRoles.Contains(userDto.Role))
+                {
+                    return new Tuple<int, string>(4, "Invalid role.");
+                }
+
+                if (existingUser.Email != userDto.Email)
+                {
+                    var emailExists = await _context.AccountUser.AnyAsync(u => u.Email == userDto.Email);
+                    if (emailExists)
+                    {
+                        return new Tuple<int, string>(0, "Email is already taken by another user.");
+                    }
+                }
+
+                existingUser.Name = userDto.Name;
+                existingUser.Email = userDto.Email;
+                existingUser.Role = userDto.Role;
+
+                if (!string.IsNullOrEmpty(userDto.Password) && existingUser.Password != userDto.Password)
+                {
+                    var userLogin = new UserLoginDto { Email = userDto.Email, Password = userDto.Password };
+                    existingUser.Password = Passwordhashing(userLogin);
+                }
+
+                await _context.SaveChangesAsync();
+                return new Tuple<int, string>(1, "User updated successfully!");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<Tuple<int, string>> DeleteUser(Guid id)
+        {
+            try
+            {
+                var existingUser = await _context.AccountUser.FirstOrDefaultAsync(u => u.Id == id);
+                if (existingUser == null)
+                {
+                    return new Tuple<int, string>(0, "User not found!");
+                }
+
+                _context.AccountUser.Remove(existingUser);
+                await _context.SaveChangesAsync();
+                return new Tuple<int, string>(1, "User deleted successfully!");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
     }

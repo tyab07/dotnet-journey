@@ -9,5 +9,6 @@ namespace Authorization.IServices
         Task<Tuple<int, string>> AddDependent(EmployeeDependentDto dependentDto);
         Task<Tuple<int, string>> UpdateDependent(EmployeeDependentDto dependentDto);
         Task<Tuple<int, string>> DeleteDependent(Guid id);
+        Task<Tuple<EmployeeDependentDto, string>> GetDependentById(Guid id);
     }
 }

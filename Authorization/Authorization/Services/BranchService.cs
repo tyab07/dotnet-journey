@@ -1,4 +1,4 @@
-﻿using Authorization.Data;
+using Authorization.Data;
 using Authorization.DTOs;
 using Authorization.Entities;
 using Authorization.IServices;
@@ -119,6 +119,35 @@ namespace Authorization.Services
                     1,
                     "Branch deleted successfully!"
                 );
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        public async Task<Tuple<BranchDto, string>> GetBranchById(Guid id)
+        {
+            try
+            {
+                var branch = await _context.Branches
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(b => b.Id == id);
+
+                if (branch == null)
+                {
+                    return new Tuple<BranchDto, string>(null, "Branch not found!");
+                }
+
+                var dto = new BranchDto
+                {
+                    Id = branch.Id,
+                    Name = branch.Name,
+                    Address = branch.Address,
+                    City = branch.City,
+                    PhoneNumber = branch.PhoneNumber
+                };
+
+                return new Tuple<BranchDto, string>(dto, "Branch retrieved successfully!");
             }
             catch (Exception)
             {

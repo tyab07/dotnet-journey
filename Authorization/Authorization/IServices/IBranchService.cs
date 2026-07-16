@@ -1,4 +1,4 @@
-﻿using Authorization.DTOs;
+using Authorization.DTOs;
 
 namespace Authorization.IServices
 {
@@ -11,5 +11,7 @@ namespace Authorization.IServices
         Task<Tuple<int, string>> UpdateBranch(BranchDto branchDto);
 
         Task<Tuple<int, string>> DeleteBranch(Guid id);
+
+        Task<Tuple<BranchDto, string>> GetBranchById(Guid id);
     }
 }

@@ -129,5 +129,36 @@ namespace Authorization.Services
                 throw;
             }
         }
+
+        public async Task<Tuple<EmployeeDocumentationDto, string>> GetDocumentationById(Guid id)
+        {
+            try
+            {
+                var doc = await _context.EmployeeDocumentation
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(d => d.Id == id);
+
+                if (doc == null)
+                {
+                    return new Tuple<EmployeeDocumentationDto, string>(null, "Documentation not found!");
+                }
+
+                var dto = new EmployeeDocumentationDto
+                {
+                    Id = doc.Id,
+                    EmployeeId = doc.EmployeeId,
+                    DocumentName = doc.DocumentName,
+                    DocumentNumber = doc.DocumentNumber,
+                    FilePath = doc.FilePath,
+                    ExpiryDate = doc.ExpiryDate
+                };
+
+                return new Tuple<EmployeeDocumentationDto, string>(dto, "Documentation retrieved successfully!");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

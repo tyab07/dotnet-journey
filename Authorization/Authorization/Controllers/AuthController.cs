@@ -76,6 +76,89 @@ namespace Authorization.Controllers
             }
         }
 
+        [HttpGet("getallusers")]
+        [Authorize(Roles = "SuperAdmin")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            try
+            {
+                var result = await _authService.GetAllUsers();
+                return Ok(ResponseResult<List<UserDto>>.Success(result.Item1, result.Item2));
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpGet("getuserbyid/{id}")]
+        [Authorize(Roles = "SuperAdmin")]
+        public async Task<IActionResult> GetUserById(Guid id)
+        {
+            try
+            {
+                var result = await _authService.GetUserById(id);
+                if (result.Item1 == null)
+                {
+                    return NotFound(ResponseResult<UserDto>.Failure(null, result.Item2));
+                }
+                return Ok(ResponseResult<UserDto>.Success(result.Item1, result.Item2));
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpPut("updateuser")]
+        [Authorize(Roles = "SuperAdmin")]
+        public async Task<IActionResult> UpdateUser(UserDto userDto)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
+
+                var result = await _authService.UpdateUser(userDto);
+
+                if (result.Item1 == 0)
+                {
+                    return NotFound(ResponseResult<string>.Failure(null, message: result.Item2));
+                }
+                if (result.Item1 == 4)
+                {
+                    return BadRequest(ResponseResult<string>.Failure(null, message: result.Item2));
+                }
+
+                return Ok(ResponseResult<UserDto>.Success(userDto, message: result.Item2));
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        [HttpDelete("deleteuser/{id}")]
+        [Authorize(Roles = "SuperAdmin")]
+        public async Task<IActionResult> DeleteUser(Guid id)
+        {
+            try
+            {
+                var result = await _authService.DeleteUser(id);
+
+                if (result.Item1 == 0)
+                {
+                    return NotFound(ResponseResult<string>.Failure(null, message: result.Item2));
+                }
+
+                return Ok(ResponseResult<string>.Success(null, message: result.Item2));
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
     }
 }

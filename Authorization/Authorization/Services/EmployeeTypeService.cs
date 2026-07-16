@@ -120,5 +120,33 @@ namespace Authorization.Services
                 throw;
             }
         }
+
+        public async Task<Tuple<EmployeeTypeDto, string>> GetEmployeeTypeById(Guid id)
+        {
+            try
+            {
+                var type = await _context.EmployeType
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(t => t.Id == id);
+
+                if (type == null)
+                {
+                    return new Tuple<EmployeeTypeDto, string>(null, "Employee type not found!");
+                }
+
+                var dto = new EmployeeTypeDto
+                {
+                    Id = type.Id,
+                    Name = type.Name,
+                    Description = type.Description
+                };
+
+                return new Tuple<EmployeeTypeDto, string>(dto, "Employee type retrieved successfully!");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

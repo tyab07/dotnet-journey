@@ -8,5 +8,6 @@ namespace Authorization.IServices
         Task<Tuple<int, string>> AddDocumentation(EmployeeDocumentationDto documentationDto);
         Task<Tuple<int, string>> UpdateDocumentation(EmployeeDocumentationDto documentationDto);
         Task<Tuple<int, string>> DeleteDocumentation(Guid id);
+        Task<Tuple<EmployeeDocumentationDto, string>> GetDocumentationById(Guid id);
     }
 }

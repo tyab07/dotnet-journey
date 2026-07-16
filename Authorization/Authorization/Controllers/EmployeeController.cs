@@ -14,9 +14,24 @@ namespace Authorization.Controllers
     public class EmployeeController(IEmployeeService _employeeService) : ControllerBase
     {
         [HttpGet("GetAllEmployees")]
-
+        [Authorize(Roles = "Admin,SuperAdmin,Employee")]
         public async Task<IActionResult> GetAllEmployees()
         {
+            if (User.IsInRole("Employee"))
+            {
+                var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+                if (string.IsNullOrEmpty(email))
+                {
+                    return Ok(ResponseResult<List<EmployeeDto>>.Failure(null, "User email not found in token."));
+                }
+                var profileResult = await _employeeService.GetEmployeeByEmailAsync(email);
+                if (!profileResult.Item2.Any())
+                {
+                    return Ok(ResponseResult<List<EmployeeDto>>.Failure(null, "No Employee Found!"));
+                }
+                return Ok(ResponseResult<List<EmployeeDto>>.Success(profileResult.Item2, "Employee Found!"));
+            }
+
             var result  = await _employeeService.GetAllEmployeesAsync();
 
             if(!result.Item2.Any())
@@ -28,6 +43,7 @@ namespace Authorization.Controllers
         }
 
         [HttpPost("RegisterEmployee")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> RegisterEmployee(EmployeeDto employeeDto)
         {
             var result = await _employeeService.RegisterEmployee(employeeDto);
@@ -43,6 +59,7 @@ namespace Authorization.Controllers
         }
 
         [HttpPut("UpdateEmployee")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> UpdateEmploye(EmployeeDto employeeDto)
         {
             try
@@ -63,7 +80,7 @@ namespace Authorization.Controllers
         }
 
         [HttpDelete("DeleteEmployee")]
-        [Authorize(Roles = "SuperAdmin,Admin")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
         public async Task<IActionResult> DeleteEmployee(EmployeeDto employeeDto)
         {
             var result = await _employeeService.DeleteEmployee(employeeDto);
@@ -77,7 +94,7 @@ namespace Authorization.Controllers
         }
 
         [HttpGet("GetEmployeeById/{id}")]
-
+        [AllowAnonymous]
         public async Task<IActionResult> GetEmployeeById(Guid id)
         {
             var result = await _employeeService.GetEmployeeById(id);

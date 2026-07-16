@@ -1,4 +1,4 @@
-﻿using Authorization.Data;
+using Authorization.Data;
 using Authorization.DTOs;
 using Authorization.Entities;
 using Authorization.IServices;
@@ -119,6 +119,36 @@ namespace Authorization.Services
                     1,
                     "Department deleted successfully!"
                 );
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public async Task<Tuple<DepartmentDto, string>> GetDepartmentById(Guid id)
+        {
+            try
+            {
+                var dept = await _context.Department
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(d => d.Id == id);
+
+                if (dept == null)
+                {
+                    return new Tuple<DepartmentDto, string>(null, "Department not found!");
+                }
+
+                var dto = new DepartmentDto
+                {
+                    Id = dept.Id,
+                    Name = dept.Name,
+                    HodName = dept.HodName,
+                    Description = dept.Description,
+                    Location = dept.Location
+                };
+
+                return new Tuple<DepartmentDto, string>(dto, "Department retrieved successfully!");
             }
             catch (Exception)
             {

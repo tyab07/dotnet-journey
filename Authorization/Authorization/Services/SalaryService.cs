@@ -1,4 +1,4 @@
-﻿using Authorization.Data;
+using Authorization.Data;
 using Authorization.DTOs;
 using Authorization.IServices;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +26,26 @@ namespace Authorization.Services
 
             return new Tuple<List<SalaryDto>, string> (salaries, "Data retrieved successfully!");
         }
+
+        public async Task<Tuple<List<SalaryDto>, string>> GetSalariesByEmployeeEmail(string email)
+        {
+            var salaries = await _context.Salary
+                .AsNoTracking()
+                .Where(s => s.Employee.Email == email)
+                .Select(x => new SalaryDto
+                {
+                    Id = x.Id,
+                    EmployeeId = x.EmployeeId,
+                    BasicSalary = x.BasicSalary,
+                    Bonus = x.Bonus,
+                    Deduction = x.Deduction,
+                    PaymentDate = x.PaymentDate,
+                    Status = x.Status
+                }).ToListAsync();
+
+            return new Tuple<List<SalaryDto>, string>(salaries, "Data retrieved successfully!");
+        }
+
         public async Task<Tuple<int,string>> AddSalary(SalaryDto salary)
         {
             try
@@ -84,7 +104,36 @@ namespace Authorization.Services
 
         }
 
+        public async Task<Tuple<SalaryDto, string>> GetSalaryById(Guid id)
+        {
+            try
+            {
+                var salary = await _context.Salary
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(s => s.Id == id);
 
+                if (salary == null)
+                {
+                    return new Tuple<SalaryDto, string>(null, "Salary not found!");
+                }
 
+                var dto = new SalaryDto
+                {
+                    Id = salary.Id,
+                    EmployeeId = salary.EmployeeId,
+                    BasicSalary = salary.BasicSalary,
+                    Bonus = salary.Bonus,
+                    Deduction = salary.Deduction,
+                    PaymentDate = salary.PaymentDate,
+                    Status = salary.Status
+                };
+
+                return new Tuple<SalaryDto, string>(dto, "Salary retrieved successfully!");
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }
