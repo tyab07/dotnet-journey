@@ -10,6 +10,7 @@ import EmployeeTypes from "./pages/EmployeeTypes";
 import Salaries      from "./pages/Salaries";
 import Users         from "./pages/Users";
 import Unauthorized  from "./pages/Unauthorized";
+import EmployeeDocumentation from "./pages/EmployeeDocumentation";
 
 import DashboardLayout from "./layouts/DashboardLayout";
 import ProtectedRoute  from "./routes/ProtectedRoute";
@@ -52,6 +53,9 @@ function App() {
           />
           <Route path="salaries"
             element={<ProtectedRoute roles={["Admin", "SuperAdmin", "Employee"]}><Salaries /></ProtectedRoute>}
+          />
+          <Route path="documents"
+            element={<ProtectedRoute roles={["Admin", "SuperAdmin"]}><EmployeeDocumentation /></ProtectedRoute>}
           />
 
           {/* SuperAdmin only */}

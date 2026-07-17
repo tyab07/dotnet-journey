@@ -14,13 +14,15 @@ namespace Authorization.Controllers
         public async Task<IActionResult> GetAllDocumentations()
         {
             var result = await _documentationService.GetAllDocumentations();
+            return Ok(new { Success = true, Message = result.Item2, Data = result.Item1 });
+        }
 
-            return Ok(new
-            {
-                Success = true,
-                Message = result.Item2,
-                Data = result.Item1
-            });
+        [HttpGet("getbyemployeeid/{employeeId}")]
+        [Authorize(Roles = "Admin,SuperAdmin")]
+        public async Task<IActionResult> GetDocumentationsByEmployeeId(Guid employeeId)
+        {
+            var result = await _documentationService.GetDocumentationsByEmployeeId(employeeId);
+            return Ok(new { Success = true, Message = result.Item2, Data = result.Item1 });
         }
 
         [HttpPost("adddocumentation")]

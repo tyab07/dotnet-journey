@@ -17,7 +17,7 @@ import axios from "axios";
 
 // Create a shared axios instance with the base URL of the .NET backend
 const api = axios.create({
-  baseURL: "https://localhost:7290/api",
+  baseURL: "http://localhost/api",
   headers: {
     "Content-Type": "application/json",
   },

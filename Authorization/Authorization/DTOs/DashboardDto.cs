@@ -1,4 +1,4 @@
-﻿namespace Authorization.DTOs
+namespace Authorization.DTOs
 {
     public class DashboardDto
     {
@@ -11,6 +11,8 @@
         public int TotalDesignations { get; set; }
 
         public List<ChartItemDto> DepartmentDistribution { get; set; }
+
+        public List<ChartItemDto> BranchDistribution { get; set; }
 
         public List<ChartItemDto> DesignationDistribution { get; set; }
 

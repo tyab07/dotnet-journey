@@ -29,6 +29,28 @@ namespace Authorization.Services
             );
         }
 
+        public async Task<Tuple<List<EmployeeDocumentationDto>, string>> GetDocumentationsByEmployeeId(Guid employeeId)
+        {
+            var documentations = await _context.EmployeeDocumentation
+                .AsNoTracking()
+                .Where(d => d.EmployeeId == employeeId)
+                .Select(d => new EmployeeDocumentationDto
+                {
+                    Id = d.Id,
+                    EmployeeId = d.EmployeeId,
+                    DocumentName = d.DocumentName,
+                    DocumentNumber = d.DocumentNumber,
+                    FilePath = d.FilePath,
+                    ExpiryDate = d.ExpiryDate
+                })
+                .ToListAsync();
+
+            return new Tuple<List<EmployeeDocumentationDto>, string>(
+                documentations,
+                "Data retrieved successfully!"
+            );
+        }
+
         public async Task<Tuple<int, string>> AddDocumentation(EmployeeDocumentationDto documentationDto)
         {
             try
